@@ -4,14 +4,47 @@ Chat app implemented following tutorial video on hotwired.dev
 ## Development steps
 Build Rails app with Hotwire Rails Integration -- full setup for turbo and stimulus
 
-1. Run `rails new chat --skip-javascript`
+## 0. Installs 
+
+<!-- 
+nao funcinou:
+#### rvm
+From https://rvm.io:
+```bash
+gpg2 --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+\curl -sSL https://get.rvm.io | bash -s stable
+sudo usermod -a -G rvm $USER
+echo 'source "/etc/profile.d/rvm.sh"' >> ~/.bashrc
+
+```
+#### ruby
+
+```bash
+rvm pkg install openssl
+rvm install ruby -C --with-openssl-dir=$HOME/.rvm/usr
+``` -->
+
+```bash
+sudo apt-get install ruby-full
+ruby -v
+gem install rails
+rails -v
+```
+>ruby 3.0.2p107 (2021-07-07 revision 0db68f0233) [x86_64-linux-gnu]
+>Rails 7.0.4
+
+#### create app
+`rails new chat --skip-javascript`
+#### hotwire on app
+
+
 Create app without javascript files because....?
 
 2. Install hotwire
 Add to Gemfile `gem 'hotwire-rails'`
 Run `bundle` and `rails hotwire:install`
 
-6. **RAILS RIGHT COMMANDS**  for room and message
+1. **RAILS RIGHT COMMANDS**  for room and message
 	- [ ] `rails g scaffold room name:string` -- full scaffold to get the whole interface
 	- [ ] `rails g model message room:references content:text` -- only model cause it needs less stuff
 7. [ ] rails db:migrate
