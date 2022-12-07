@@ -33,18 +33,16 @@ rails -v
 >ruby 3.0.2p107 (2021-07-07 revision 0db68f0233) [x86_64-linux-gnu]
 >Rails 7.0.4
 
+- *gem command*: from RubyGems package manager
+
 #### create app
-`rails new chat --skip-javascript`
-#### hotwire on app
+`rails new chat`
+
+- gems turbo-rails abd stimulus-rails comes by dafault
+note: gem howire-rails is deprecated. 
 
 
-Create app without javascript files because....?
-
-2. Install hotwire
-Add to Gemfile `gem 'hotwire-rails'`
-Run `bundle` and `rails hotwire:install`
-
-1. **RAILS RIGHT COMMANDS**  for room and message
+## 1. **RAILS RIGHT COMMANDS**  for room and message
 	- [ ] `rails g scaffold room name:string` -- full scaffold to get the whole interface
 	- [ ] `rails g model message room:references content:text` -- only model cause it needs less stuff
 7. [ ] rails db:migrate
