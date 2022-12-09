@@ -47,6 +47,7 @@ note: gem howire-rails is deprecated.
 ```bash
 rails g scaffold room name:string
 rails g model message room:references content:text
+rails db:migrate
 ```
 
 - ROOM: Full scaffold, creates
@@ -65,7 +66,6 @@ rails g model message room:references content:text
       create      app/views/rooms/_room.json.jbuilder
 
 ## 2. 
-7. [ ] rails db:migrate
 8. connect room and messages together
 	1. [ ] at routes.rb....
 	2. [ ] search what that does
