@@ -42,9 +42,30 @@ rails -v
 note: gem howire-rails is deprecated. 
 
 
-## 1. **RAILS RIGHT COMMANDS**  for room and message
-	- [ ] `rails g scaffold room name:string` -- full scaffold to get the whole interface
-	- [ ] `rails g model message room:references content:text` -- only model cause it needs less stuff
+## 1. commands for basic structure
+
+```bash
+rails g scaffold room name:string
+rails g model message room:references content:text
+```
+
+- ROOM: Full scaffold, creates
+	- migration (that is a schema for the db table..?)
+	- model
+	- controller file
+	- views files (all the basic UI)
+	- route
+	- tests, fixtures, helper, jbuilder files
+- MESSAGE: Only model cause it needs less stuff
+   
+
+   
+- [ ] jbuilder 
+		create      app/views/rooms/index.json.jbuilder
+      create      app/views/rooms/show.json.jbuilder
+      create      app/views/rooms/_room.json.jbuilder
+
+## 2. 
 7. [ ] rails db:migrate
 8. connect room and messages together
 	1. [ ] at routes.rb....
