@@ -56,8 +56,7 @@ rails g model message room:references content:text
 	- views files (all the basic UI)
 	- route
 	- tests, fixtures, helper, jbuilder files
-- MESSAGE: Only model cause it needs less stuff
-   
+- MESSAGE: creates only model, migration and tests
 
    
 - [ ] jbuilder 
