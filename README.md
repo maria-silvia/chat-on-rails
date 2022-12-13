@@ -51,7 +51,7 @@ rails db:migrate
 ```
 
 - ROOM: Full scaffold, creates
-	- migration (that is a schema for the db table..?)
+	- migration (that is instructions for the db table schema..?)
 	- model
 	- controller file
 	- views files (all the basic UI)
@@ -65,20 +65,34 @@ rails db:migrate
       create      app/views/rooms/show.json.jbuilder
       create      app/views/rooms/_room.json.jbuilder
 
-## 2. 
-8. connect room and messages together
-	1. [ ] at routes.rb....
-	2. [ ] search what that does
-	```ruby
-	Rails.application.routes.draw do
-		resources :rooms do
-			resources :messages
-		end
+## 2. Connect room and messages 
+### Make relation 
+At model room.rb add `has_many : messages`
+
+### Make nested routes:
+```ruby
+# routes.rb
+Rails.application.routes.draw do
+	resources :rooms do
+		resources :messages
 	end
-	```
-	2. [ ] at room.rb, room model `has_many : messages`
-9. [ ] create messages_controller.rb.. a lot fo boilerplate code
-		![[Pasted image 20221121104304.png]]
+end
+```
+- [ ] add only: [:new, :show, :destroy] em messages?
+
+> Create routes like `/rooms/:room_id/messages` and its children /new, /:id, /:id/edit.
+> Run `rails routes`to check all existing routes now.
+> This declaration automatically routes to a MessagesController 
+
+### Create the MessagesController
+- just new and create methods
+- To create message there must be a room to belong to:
+	`before_action :set_room, only: %i[ new create ]`
+- at create: 
+      `@message = @room.messages.create!(message_params)`
+	  `!` because it modifies the object it's called on
+
+______
 
 11. [ ] create a views/messages
 12. [ ] create the view new.html.erb and the create method for messages 
