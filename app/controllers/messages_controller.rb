@@ -10,15 +10,14 @@ class MessagesController < ApplicationController
       @message = @room.messages.create!(message_params)
   
       respond_to do |format|
-          format.html { redirect_to @room}
-        end
+        format.html { redirect_to @room}
       end
     end
   
     private
       # Use callbacks to share common setup or constraints between actions.
       def set_room
-        @room = Room.find(params[:id])
+        @room = Room.find(params[:room_id])
       end
   
       # Only allow a list of trusted parameters through.
