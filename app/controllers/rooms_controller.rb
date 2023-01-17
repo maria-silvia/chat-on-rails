@@ -8,6 +8,9 @@ class RoomsController < ApplicationController
 
   # GET /rooms/1 or /rooms/1.json
   def show
+    if @room.nil?
+      redirect_to rooms_url, notice: "Room not found."
+    end
   end
 
   # GET /rooms/new
@@ -60,7 +63,7 @@ class RoomsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_room
-      @room = Room.find(params[:id])
+      @room = Room.find_by(id: params[:id])
     end
 
     # Only allow a list of trusted parameters through.

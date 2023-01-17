@@ -38,7 +38,7 @@ rails -v
 #### create app
 `rails new chat`
 
-- gems turbo-rails abd stimulus-rails comes by dafault
+- gems turbo-rails and stimulus-rails comes by dafault
 note: gem howire-rails is deprecated. 
 
 
@@ -82,7 +82,7 @@ end
 
 > Create routes like `/rooms/:room_id/messages` and its children /new, /:id, /:id/edit.
 > Run `rails routes`to check all existing routes now.
-> This declaration automatically routes to a MessagesController 
+> This declaration automatically routes to a MessagesController, not created yet 
 
 ### Create the MessagesController
 - just new and create methods
@@ -90,18 +90,32 @@ end
 	`before_action :set_room, only: %i[ new create ]`
 - at create: 
       `@message = @room.messages.create!(message_params)`
-	  `!` because it modifies the object it's called on
+	  the `!` modifies the object it's called on
+
+
+## 3. Create views/messages
+- create partial template  `_message.html.erb` 
+	- show the content and created_at attributes
+- at rooms's show.html display the associated messages:
+```ruby
+<%= render @room.messages %>
+```
+
+- add button for new message with the prefix seen at `rails routes`:
+```ruby
+<%= link_to "New message", new_room_message_path(@room) %>
+```
+	
+- create new.html.erb at messages/ with a form_with thing....
+- [ ] ver com fucniona form with
+
+
 
 ______
 
-11. [ ] create a views/messages
-12. [ ] create the view new.html.erb and the create method for messages 
-13. [ ] create partial template  `_message.html.erb` and call it a the show of a room
-14. [ ] run it and test it!
-	1. show room should have link for new message
-	2. should have something llike ``/rooms/1/messages/new`
 
-#### starting with Turbo frames
+
+# starting with Turbo frames
 > decompose into contexts, that can be lazy loaded or scope interaction
 
 helper: add border to frames at application.css
