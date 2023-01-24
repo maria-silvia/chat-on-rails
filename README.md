@@ -1,10 +1,28 @@
 # chat-on-rails
 Chat app implemented following tutorial video on hotwired.dev
 
-## Development steps
+# Development steps
 Build Rails app with Hotwire Rails Integration -- full setup for turbo and stimulus
 
-## 0. Installs 
+- [chat-on-rails](#chat-on-rails)
+- [Development steps](#development-steps)
+	- [0. Install](#0-install)
+			- [create app](#create-app)
+	- [1. commands for basic structure](#1-commands-for-basic-structure)
+	- [2. Connect room and messages](#2-connect-room-and-messages)
+		- [Make relation](#make-relation)
+		- [Make nested routes:](#make-nested-routes)
+		- [Create the MessagesController](#create-the-messagescontroller)
+	- [3. Create views/messages](#3-create-viewsmessages)
+	- [4. Starting with Turbo frames](#4-starting-with-turbo-frames)
+			- [turbo streams!](#turbo-streams)
+			- [add turbo stream response](#add-turbo-stream-response)
+			- [stimulus](#stimulus)
+	- [actually web socket](#actually-web-socket)
+		- [stream deletions](#stream-deletions)
+				- [simplification: one liner](#simplification-one-liner)
+
+## 0. Install
 
 <!-- 
 nao funcinou:
@@ -107,7 +125,6 @@ end
 ```
 	
 - create new.html.erb at messages/ with a form_with thing....
-- [ ] ver com fucniona form with
 
 
 
@@ -115,10 +132,12 @@ ______
 
 
 
-# starting with Turbo frames
+## 4. Starting with Turbo frames
 > decompose into contexts, that can be lazy loaded or scope interaction
 
-helper: add border to frames at application.css
+- [ ] scope interaction?
+
+**A helper: add border to frames at application.css**
 ```css
 turbo-frame {
 	display: block;
