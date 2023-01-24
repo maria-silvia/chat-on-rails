@@ -15,7 +15,8 @@ Build Rails app with Hotwire Rails Integration -- full setup for turbo and stimu
 		- [Create the MessagesController](#create-the-messagescontroller)
 	- [3. Create views/messages](#3-create-viewsmessages)
 	- [4. Starting with Turbo frames](#4-starting-with-turbo-frames)
-			- [turbo streams!](#turbo-streams)
+		- [Framing the room editing](#framing-the-room-editing)
+	- [5. turbo streams!](#5-turbo-streams)
 			- [add turbo stream response](#add-turbo-stream-response)
 			- [stimulus](#stimulus)
 	- [actually web socket](#actually-web-socket)
@@ -128,7 +129,6 @@ end
 
 
 
-______
 
 
 
@@ -144,17 +144,26 @@ turbo-frame {
 	border: 2px doted pink;
 }
 ```
-1. [ ] at rooms's show.html.erb, wrap the name and the edit links in a turbo_frame_tag. 
-2. [ ] do it also for the edit form at edit.html.erb
+### Framing the room editing
+Wrap in `turbo_frame_tag "room"`
+- the name and edit link at rooms's show.html.erb 
+- the edit form at room's edit.html.erb
+
 ```ruby
 <%= turbo_frame_tag "room" do %>
 	...
 <% end %>
 ```
-	--> this makes a section o the page that is replaced by another
-2. nothing happens (!) when clicking link within frame that doesnt hav emathing frame
+At room edit, form replaces only the matching turbo_frame_tag that is replaced by another, rest of the page is maintaned
+> Framed html belongs to a same context of their own
+> navegacao e renderizacao independente
 
--> entoa o Frame se usa criando uma parte da pagina que funciona inteiramente indenpendete do resto da pagina,tem navegacao e renderizacao independetes....
+> this makes these sections act independente from the rest of the page
+
+______
+
+1. clicking link within frame that doesnt have matching frame
+
 3. [ ] solve it by adding attribute to lin_to do Back:
 		`"data-turbo-frame: "_top"`
 	- that does whaaat? points to `_top` to breakout of the Frame
@@ -175,7 +184,7 @@ turbo-frame {
 > o de message faz a pagina recarregar
 
 
-#### turbo streams!
+## 5. turbo streams!
 html and crud like actions
 just DOM changes
 no direct js invocation (how does it change the dom ..with indirect js?)
@@ -243,3 +252,5 @@ broadcasts
 ```
 
 etc etc 
+
+- destroy room not working, at tutorial button was removed

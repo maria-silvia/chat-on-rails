@@ -1,6 +1,9 @@
 <h1>Editing room</h1>
+<%= turbo_frame_tag "room" do %>
 
-<%= render "form", room: @room %>
+  <%= render "form", room: @room %>
+
+<% end %>
 
 <br>
 
