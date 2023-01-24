@@ -15,7 +15,8 @@ Build Rails app with Hotwire Rails Integration -- full setup for turbo and stimu
 		- [Create the MessagesController](#create-the-messagescontroller)
 	- [3. Create views/messages](#3-create-viewsmessages)
 	- [4. Starting with Turbo frames](#4-starting-with-turbo-frames)
-		- [Framing the room editing](#framing-the-room-editing)
+		- [Framing the room editing (basic frame)](#framing-the-room-editing-basic-frame)
+			- [add attribute to back link](#add-attribute-to-back-link)
 	- [5. turbo streams!](#5-turbo-streams)
 			- [add turbo stream response](#add-turbo-stream-response)
 			- [stimulus](#stimulus)
@@ -144,7 +145,7 @@ turbo-frame {
 	border: 2px doted pink;
 }
 ```
-### Framing the room editing
+### Framing the room editing (basic frame)
 Wrap in `turbo_frame_tag "room"`
 - the name and edit link at rooms's show.html.erb 
 - the edit form at room's edit.html.erb
@@ -157,19 +158,23 @@ Wrap in `turbo_frame_tag "room"`
 At room edit, form replaces only the matching turbo_frame_tag that is replaced by another, rest of the page is maintaned
 > Framed html belongs to a same context of their own
 > navegacao e renderizacao independente
-
 > this makes these sections act independente from the rest of the page
 
+> **expects any followed link or form submission to return a .html.erb that includes a matching frame tag**  
+https://turbo.hotwired.dev/reference/frames
+
+Since the Back link do not navigate to page with matching frame, when clicked it loads everything again (all the scripts)
+
+#### add attribute to back link
+`"data-turbo-frame: "_top"`
+Now when clicked only loads the GET rooms request
+ ? its like adding target="_top" ??
+>  When target="_top", navigate the window.
 ______
 
-1. clicking link within frame that doesnt have matching frame
-
-3. [ ] solve it by adding attribute to lin_to do Back:
-		`"data-turbo-frame: "_top"`
-	- that does whaaat? points to `_top` to breakout of the Frame
 
 
-4. [ ] add inline lazy-loaded Frame for new messages
+1. [ ] add inline lazy-loaded Frame for new messages
 ```ruby
 <%= turbo_frame_tag "new_message", src: new_room_message_path(@room), target: "_top" %>
 ```
