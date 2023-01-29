@@ -13,7 +13,8 @@ Steps taken to develop the app
   - [4. Starting with Turbo frames](#4-starting-with-turbo-frames)
     - [Framing the room editing (basic frame)](#framing-the-room-editing-basic-frame)
       - [add attribute to back link](#add-attribute-to-back-link)
-    - [Framing the messages (lazy load frame)](#framing-the-messages-lazy-load-frame)
+    - [Framing the messages (eager load frame)](#framing-the-messages-eager-load-frame)
+      - [Why not just render the form?](#why-not-just-render-the-form)
         - [tips/obs](#tipsobs)
   - [5. turbo streams](#5-turbo-streams)
       - [add turbo stream response](#add-turbo-stream-response)
@@ -171,25 +172,38 @@ Adding `"data-turbo-frame: "_top"` makes it loads only the GET rooms request
 >  When target="_top", navigate the window.
 
 *Not sure how it works
-Maybe because there is no matching frame clicking the link makes a full reload of the page. While with `_top` frame is setted to target the whole page, so whole page is replaced...*
+Maybe because there is no matching frame clicking the link makes link behave like a normal link, fully reloading of the page. While with `_top` frame is setted to target the whole page, so whole page is replaced...
+Ends up being like Turbo Drive than?*
 
-### Framing the messages (lazy load frame)
-Just like it was done for Room editing, create a own context for the message creation:
+### Framing the messages (eager load frame)
+Just like before, create a own context for the message creation by wrapping HTML with turbo_frame_tag but **now with src attribute**:
+
 - Replace link_to for a turbo_frame_tag for the New Message button
 ```ruby
 <%= turbo_frame_tag "new_message", src: new_room_message_path(@room), target: "_top" %>
 ```
 - Wrap the new message form with turbo_frame_tag `<%= turbo_frame_tag "new_message" do %>`
 
-This makes the new message form render directly into the room's show page.
-Why???its not excalcty like before? why not just render the form??
-______
-- note differences between the fisrt frame we did and this last one ???
+-> This makes the new message form render directly into the room's show page. No link that redirects for a create page. Now looks like a real chat 
+-> Now when sending message the request are: 
+    a) POST rooms/ID/messages
+    b) GET rooms/ID
+    c) GET rooms/ID/messages/new (load the form again)
+
+-> The same request as before but now 
+
+#### Why not just render the form?
+1. The create form requires code from the action `new()` to be runned before:
+      `@message = @room.messages.new`
+    And render method only *renders* the html, dont pass through controller
+2. there is no partial messages/_form, there is a new.html.erb and `render` is to be used with partials
+
 ##### tips/obs
 > - matching id is important
 > - inspect Network tab to check behaviour
 > - inspect html on devtool tab to check behaviour
 
+______
 
 ## 5. turbo streams
 html and crud like actions
