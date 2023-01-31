@@ -16,12 +16,12 @@ Steps taken to develop the app
     - [Framing the messages (eager load frame)](#framing-the-messages-eager-load-frame)
       - [Why not just render the form?](#why-not-just-render-the-form)
         - [tips/obs](#tipsobs)
-  - [5. turbo streams](#5-turbo-streams)
-      - [add turbo stream response](#add-turbo-stream-response)
-      - [stimulus](#stimulus)
+  - [5. Turbo Streams](#5-turbo-streams)
+    - [to streams messages](#to-streams-messages)
   - [actually web socket](#actually-web-socket)
     - [stream deletions](#stream-deletions)
         - [simplification: one liner](#simplification-one-liner)
+  - [6. Stimulus](#6-stimulus)
 
 ## 0. Install
 
@@ -187,10 +187,10 @@ Just like before, create a own context for the message creation by wrapping HTML
 -> This makes the new message form render directly into the room's show page. No link that redirects for a create page. Now looks like a real chat 
 -> Now when sending message the request are: 
     a) POST rooms/ID/messages
-    b) GET rooms/ID
+    b) GET rooms/ID (reloads whole page)
     c) GET rooms/ID/messages/new (load the form again)
 
--> The same request as before but now 
+-> The same request as before but now rest of the pages is intact until necessary
 
 #### Why not just render the form?
 1. The create form requires code from the action `new()` to be runned before:
@@ -202,40 +202,33 @@ Just like before, create a own context for the message creation by wrapping HTML
 > - matching id is important
 > - inspect Network tab to check behaviour
 > - inspect html on devtool tab to check behaviour
+> - The first frame, the Basic for Room editing, is really independent context. The second one is not because sending message makes whole page to reload. Like if you try to start editing the room name and send a message, the edit form resets.
 
+## 5. Turbo Streams
+
+-> **Append the messages HTML tags without JS.**
+-> DOM changes with HTML tags that functions as crud-like actions (CREATE, UPDATE, DELETE, etc)
+
+### to streams messages
+
+- When a message is created, the action should return also a turbo stream response besides the default html 
+  So at `message_controller > create` add	`format.turbo_stream`
+
+- Create a template for the turbo stream response that invokes the append action with the DOM id of target container:
+    - create file create.turbo_stream.erb with:
+    ```ruby
+    <%= turbo_stream.append "messages", @message %>
+    ```
+
+**result**
+> - At message sending, only POST request is executed.
+> - Messages are updated (technically last one is appended) without needing a GET request for the room show
+> - When message sent, page is not fully reloaded anymore (edit form not affected as before)
+>
+> **Essentially, make the minimal necessary DOM changes and dismiss the fully refresh** 
+
+But it still require refresh if you're on diffenrent session than the one that submitted the message. That is, is not yet properly communicating between users.
 ______
-
-## 5. turbo streams
-html and crud like actions
-just DOM changes
-no direct js invocation (how does it change the dom ..with indirect js?)
-
-#### add turbo stream response
-1. at msg controller, at create method, add: 
-	`format.turbo_stream`
-2. at msg views: create create.turbo_stream.erb
-		template that invokes append action with the DOM id of target container
-	```
-	<%= turbo_stream.append "messafes", @message %>
-	```
-
-result -> add msg, only post request, no GET
-
-#### stimulus
-adding  a controler to fix the input of new msg that doenst clear out
-
-1. create controller reset_form_controller.js 
-```ruby
-	import {Controller} from 'stimulus'
-	export default class extends Controller {
-	reset() {
-	this.element.reset()
-	}
-}
-```
-2. just extend the html
-- at form_with
-`data: { controller: 'reset_form', action: "turbo:submit-end->reset_form#reset"}`
 
 ## actually web socket
 -> stabilish websocket connection to the sream identified by the room we're in -> From tag
@@ -272,6 +265,21 @@ or just:
 broadcasts
 ```
 
-etc etc 
+## 6. Stimulus
+After message is sent the input do not clear out, we add a stimulus controler to fix that.
+
+1. create controller reset_form_controller.js 
+```ruby
+	import {Controller} from 'stimulus'
+	export default class extends Controller {
+	reset() {
+	this.element.reset()
+	}
+}
+```
+2. just extend the html
+- at form_with
+`data: { controller: 'reset_form', action: "turbo:submit-end->reset_form#reset"}`
+
 
 - destroy room not working, at tutorial button was removed
