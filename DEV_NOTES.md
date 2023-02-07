@@ -17,8 +17,9 @@ Steps taken to develop the app
       - [Why not just render the form?](#why-not-just-render-the-form)
         - [tips/obs](#tipsobs)
   - [5. Turbo Streams](#5-turbo-streams)
-    - [to streams messages](#to-streams-messages)
-  - [actually web socket](#actually-web-socket)
+    - [Append a message HTML tag without JS (streams messages)](#append-a-message-html-tag-without-js-streams-messages)
+    - [Actually WebSocket now](#actually-websocket-now)
+    - [Sending messages to the stream](#sending-messages-to-the-stream)
     - [stream deletions](#stream-deletions)
         - [simplification: one liner](#simplification-one-liner)
   - [6. Stimulus](#6-stimulus)
@@ -205,52 +206,98 @@ Just like before, create a own context for the message creation by wrapping HTML
 > - The first frame, the Basic for Room editing, is really independent context. The second one is not because sending message makes whole page to reload. Like if you try to start editing the room name and send a message, the edit form resets.
 
 ## 5. Turbo Streams
+*DOM changes with HTML tags that functions as crud-like actions (CREATE, UPDATE, DELETE, etc)*
 
--> **Append the messages HTML tags without JS.**
--> DOM changes with HTML tags that functions as crud-like actions (CREATE, UPDATE, DELETE, etc)
+### Append a message HTML tag without JS (streams messages)
 
-### to streams messages
+- When a message is created, the action should return also a **turbo stream response** besides the default html (the redirect to @room) 
+  So at the `messages_controller > create > respond_to` add	`format.turbo_stream`
 
-- When a message is created, the action should return also a turbo stream response besides the default html 
-  So at `message_controller > create` add	`format.turbo_stream`
-
-- Create a template for the turbo stream response that invokes the append action with the DOM id of target container:
+- For this turbo stream response create a template that invokes an action to **append** a message at the target container indicated by DOM id:
     - create file create.turbo_stream.erb with:
     ```ruby
     <%= turbo_stream.append "messages", @message %>
     ```
 
-**result**
+**Result:**
 > - At message sending, only POST request is executed.
 > - Messages are updated (technically last one is appended) without needing a GET request for the room show
-> - When message sent, page is not fully reloaded anymore (edit form not affected as before)
+> - When a message is sent, page is not fully reloaded anymore (edit form not affected as before)
 >
-> **Essentially, make the minimal necessary DOM changes and dismiss the fully refresh** 
+> **Essentially, now it makes the minimal necessary DOM changes and dismiss the fully refresh** (when the frontend knows there is one more message??)
 
 But it still require refresh if you're on diffenrent session than the one that submitted the message. That is, is not yet properly communicating between users.
-______
 
-## actually web socket
--> stabilish websocket connection to the sream identified by the room we're in -> From tag
+### Actually WebSocket now 
 
-1. just add to show room html:
-`<%= turbo_stream_from @room %>`
-- [ ] tamper-safe signed identifier
+- Each room should have its own stream
+- A stream can be identified where it is from by a **from tag with the room object**:
 
-- [ ] what exactly the other turbo stream tags were doing until now?
+  `<%= turbo_stream_from @room %>`
+  This stabilish a WebSocket connection to the stream identified by the room we're in
 
--> observe 101 request, action cable
+**Result**
 
-2. broadcast call: at model message.rb:
-```ruby
-	after_create_commit -> { broadcast_append_to room }
+-> Network tab has a GET **cable** request, initiated by websocket, with 101 status (Switching Protocols).
+-> The request:
+  - receives a welcome message `type: "welcome"`
+  - then sends a subscribe message identifying the stream:
+  ```
+  {
+    "command": "subscribe",
+    "identifier": "{
+        \"channel\":\"Turbo::StreamsChannel\",
+        \"signed_stream_name\":\"Iloy...50a\"
+      }"
+  }
+  ```
+  - then receives a confirm_subscription message:
+  ```
+  {
+    "identifier": "{
+      \"channel\":\"Turbo::StreamsChannel\",
+      \"signed_stream_name\":\"Ilo...50a\"
+    }",
+    "type":"confirm_subscription"
+  }
+  ```
+  - *and then receives a ping message every 3 seconds*
+    ```
+    {
+    "type": "ping",
+    "message": 1675739649
+    }
+    ```
+
+
+### Sending messages to the stream
+
+- Add **broadcast call** when message is created. 
+  At model message.rb:
+  `after_create_commit -> { broadcast_append_to room }`
+
+> mirrors what was already been done at the controller, but now over websocket.
+
+That is, when message created sends a broadcast message.
+
+**Result**
+
+- When a message is created on server, everyone, every browser session receives on its cable request:
 ```
--> observe
+{
+    "identifier": "{
+      \"channel\":\"Turbo::StreamsChannel\",
+      \"signed_stream_name\":\"Ilo...0a\"
+    }",
+    "message": 
+    "<turbo-stream action=\"append\" target=\"messages\"><template><p id=\"message_32\">\n  [07 Feb 03:12] \n  Oi tudo bem \n</p>\n</template></turbo-stream>"
+}
+```
 
-sender has double vision!
-fix:
-at the create.turbo_stream.erb previously created, edit:
-dead end this will be done without  a cable connection
+*(tutorial speask about a double vision that requires deleting the template created on previous step because cable would handle it.. but i don't get double vision)*
+- [ ] searh why it did the first part then
+*i think its because it does need to have something on controller saying a turbo stream will be returned, the template is just while there wasnt a proper turbo stream response*
+____
 
 
 ### stream deletions
