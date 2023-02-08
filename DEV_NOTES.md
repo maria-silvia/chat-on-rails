@@ -20,8 +20,9 @@ Steps taken to develop the app
     - [Append a message HTML tag without JS (streams messages)](#append-a-message-html-tag-without-js-streams-messages)
     - [Actually WebSocket now](#actually-websocket-now)
     - [Sending messages to the stream](#sending-messages-to-the-stream)
-    - [stream deletions](#stream-deletions)
-        - [simplification: one liner](#simplification-one-liner)
+    - [stream deletions, updates and one-liner](#stream-deletions-updates-and-one-liner)
+    - [and to broadcast changes to Room](#and-to-broadcast-changes-to-room)
+      - [extra: testing with rails console](#extra-testing-with-rails-console)
   - [6. Stimulus](#6-stimulus)
 
 ## 0. Install
@@ -297,23 +298,43 @@ That is, when message created sends a broadcast message.
 *(tutorial speask about a double vision that requires deleting the template created on previous step because cable would handle it.. but i don't get double vision)*
 - [ ] searh why it did the first part then
 *i think its because it does need to have something on controller saying a turbo stream will be returned, the template is just while there wasnt a proper turbo stream response*
-____
 
 
-### stream deletions
+### stream deletions, updates and one-liner
+
+For triggering broadcast for other actions, add to model:
+
 `after_destroy_commit -> { broadcast_remove_to room }`
+`after_update_commit -> { broadcast_replace_to room }`
 
-##### simplification: one liner
-get a full menu of lifecycle updates
-add to message.rb:
+Or in one line:
 ```ruby
 broadcast_to :rooms
-or just:
-broadcasts
 ```
 
+### and to broadcast changes to Room 
+At room.rb is enough to add:
+```ruby
+broadcasts
+```
+And making sure the partial _room has dom_id
+
+
+#### extra: testing with rails console
+To actions runned on rails console work properly, Redis database must be installed.
+At `config/cable.yml` there should be:
+```yml
+development:
+  adapter: redis
+  url: redis://localhost:6379/1
+``` 
+If it is not installed run `bin/rails turbo:install` and `./bin/rails turbo:install:redis` and then run Redis server...
+
+> change the development Action Cable adapter from Async (the default one) to Redis. The Async adapter does not support Turbo Stream broadcasting.
+from https://github.com/hotwired/turbo-rails#installation
+____
 ## 6. Stimulus
-After message is sent the input do not clear out, we add a stimulus controler to fix that.
+After message is sent the input do not clear out, we add a stimulus controller to fix that.
 
 1. create controller reset_form_controller.js 
 ```ruby
